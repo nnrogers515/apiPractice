@@ -1,8 +1,9 @@
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import io.ktor.server.testing.withTestApplication
 
 class TestMain : StringSpec({
-    "Should Greet Properly" {
-        hello() shouldBe "Hello, World"
+    "should retrieve root path properly" {
+        withTestApplication {  }
     }
 })
