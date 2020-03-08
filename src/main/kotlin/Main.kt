@@ -4,9 +4,11 @@ import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -15,7 +17,8 @@ fun hello(): String {
     return "Hello, World"
 }
 
-data class OperatorResult(val first: Int, val second: Int, val result: Int)
+data class CalculatorRequest(val operation: String, val first: Int, val second: Int)
+data class Result(val operation: String, val first: Int, val second: Int, val result: Int)
 
 fun Application.adder() {
     val counts: MutableMap<String, Int> = mutableMapOf()
@@ -23,6 +26,21 @@ fun Application.adder() {
         gson { }
     }
     routing {
+        post("/calculate") {
+            try {
+                val request = call.receive<CalculatorRequest>()
+                val result = when (request.operation) {
+                    "add" -> request.first + request.second
+                    "subtract" -> request.first - request.second
+                    "multiply" -> request.first * request.second
+                    "divide" -> request.first / request.second
+                    else -> throw Exception("${request.operation} is not supported")
+                }
+                call.respond(Result(request.operation, request.first, request.second, result))
+            } catch (e: Exception) {
+                println(e)
+            }
+        }
         get("/") {
             call.respondText(hello())
         }
@@ -43,8 +61,8 @@ fun Application.adder() {
                     "divide" -> first / second
                     else -> throw Exception("$operation is not supported")
                 }
-                val operatorResult = OperatorResult(first, second, result)
-                call.respond(operatorResult)
+                val retResult = Result(operation, first, second, result)
+                call.respond(retResult)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, e)
             }
