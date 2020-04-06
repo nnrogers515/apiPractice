@@ -26,21 +26,6 @@ fun Application.adder() {
         gson { }
     }
     routing {
-        post("/calculate") {
-            try {
-                val request = call.receive<CalculatorRequest>()
-                val result = when (request.operation) {
-                    "add" -> request.first + request.second
-                    "subtract" -> request.first - request.second
-                    "multiply" -> request.first * request.second
-                    "divide" -> request.first / request.second
-                    else -> throw Exception("${request.operation} is not supported")
-                }
-                call.respond(Result(request.operation, request.first, request.second, result))
-            } catch (e: Exception) {
-                println(e)
-            }
-        }
         get("/") {
             call.respondText(hello())
         }
@@ -65,6 +50,21 @@ fun Application.adder() {
                 call.respond(retResult)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, e)
+            }
+        }
+        post("/calculate") {
+            try {
+                val request = call.receive<CalculatorRequest>()
+                val result = when (request.operation) {
+                    "add" -> request.first + request.second
+                    "subtract" -> request.first - request.second
+                    "multiply" -> request.first * request.second
+                    "divide" -> request.first / request.second
+                    else -> throw Exception("${request.operation} is not supported")
+                }
+                call.respond(Result(request.operation, request.first, request.second, result))
+            } catch (e: Exception) {
+                println(e)
             }
         }
     }
